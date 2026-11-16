@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geography, Regionalism, and the Development of American Society</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================================
+       GEOGRAPHY / REGIONALISM DECK
+       Archival atlas + historical editorial visual system
+       ================================================================ */
+    :root {
+      --ink: #241b17;
+      --ink-soft: #584841;
+      --paper: #efe7d7;
+      --paper-dark: #d9c9af;
+      --paper-line: rgba(36, 27, 23, .18);
+      --wine: #652e2a;
+      --wine-dark: #3e201e;
+      --rust: #9b5942;
+      --ochre: #b58a56;
+      --olive: #71765c;
+      --mist: #c9d0c4;
+      --blue-muted: #879aa0;
+      --stage-bg: #16100e;
+      --slide-bg: var(--paper);
+      --display: 'Cormorant Garamond', Georgia, serif;
+      --body: 'DM Sans', Arial, sans-serif;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+      --dur: .7s;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage-bg); }
+    body { color: var(--ink); font-family: var(--body); }
+
+    /* === REQUIRED FIXED 16:9 STAGE BASE === */
+    .deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg); }
+    .deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; background: var(--slide-bg); }
+    .slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg); }
+    .slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+    img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+    .deck-controls { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000; }
+    @media print {
+      html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+      .deck-viewport { position: static; overflow: visible; background: #fff; }
+      .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+      .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+      .slide:last-child { break-after: auto; page-break-after: auto; }
+      .deck-controls, .deck-hud, .edit-hotzone, .edit-toggle, .notes-drawer, .overview { display: none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .2s !important; } }
+
+    /* === GLOBAL DESIGN TOKENS === */
+    .slide::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .23; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E"); mix-blend-mode: multiply; z-index: 4; }
+    .slide > * { position: relative; z-index: 5; }
+    .page-kicker { font-size: 17px; letter-spacing: .18em; text-transform: uppercase; color: var(--wine); font-weight: 700; }
+    .eyebrow { font-family: var(--body); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--wine); font-weight: 700; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -.025em; }
+    h1 { font-size: 112px; line-height: .89; }
+    h2 { font-size: 82px; line-height: .94; }
+    h3 { font-size: 42px; line-height: 1; }
+    .body-copy { font-size: 26px; line-height: 1.35; color: var(--ink-soft); }
+    .small-copy { font-size: 18px; line-height: 1.35; color: var(--ink-soft); }
+    .source-line { position: absolute; left: 92px; bottom: 42px; font-size: 14px; letter-spacing: .02em; color: rgba(36,27,23,.66); max-width: 1040px; }
+    .source-line a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(36,27,23,.35); }
+    .slide-no { position: absolute; right: 88px; bottom: 39px; font-size: 15px; letter-spacing: .12em; color: var(--wine); font-weight: 700; }
+    .rule { width: 100%; height: 1px; background: var(--paper-line); }
+    .hairline { border: 1px solid var(--paper-line); }
+    .pill { display: inline-flex; align-items: center; gap: 9px; border: 1px solid rgba(101,46,42,.48); border-radius: 999px; padding: 10px 16px; color: var(--wine); font-size: 15px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rust); display: inline-block; }
+
+    /* === REVEAL ANIMATION === */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+    .slide.visible .delay-1 { transition-delay: .12s; }
+    .slide.visible .delay-2 { transition-delay: .24s; }
+    .slide.visible .delay-3 { transition-delay: .36s; }
+    .slide.visible .delay-4 { transition-delay: .48s; }
+    .slide.visible .delay-5 { transition-delay: .60s; }
+    .reveal-left { opacity: 0; transform: translateX(-42px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+    .slide.visible .reveal-left { opacity: 1; transform: translateX(0); }
+    .reveal-scale { opacity: 0; transform: scale(.92); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+    .slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+    /* === SLIDE 1: COVER === */
+    .cover { background: var(--ink); color: var(--paper); }
+    .cover .map-hero { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(36,27,23,.94) 0%, rgba(36,27,23,.71) 37%, rgba(36,27,23,.19) 78%, rgba(36,27,23,.58) 100%), url('assets/us-physical-landscape.jpg') center / cover; filter: saturate(.72) sepia(.25) contrast(1.05); transform: scale(1.02); }
+    .cover .map-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 78% 28%, rgba(255,220,161,.23), transparent 30%), linear-gradient(180deg, transparent 58%, rgba(36,27,23,.8)); }
+    .cover .cover-content { position: absolute; left: 108px; top: 112px; width: 930px; }
+    .cover .kicker { color: #d0a77f; letter-spacing: .21em; font-size: 19px; font-weight: 700; text-transform: uppercase; margin-bottom: 48px; }
+    .cover h1 { font-size: 126px; line-height: .79; max-width: 900px; }
+    .cover h1 em { color: #cf9b70; font-style: normal; }
+    .cover .subtitle { margin-top: 38px; color: #e5d8c4; font-size: 25px; line-height: 1.35; max-width: 690px; }
+    .cover .meta { position: absolute; left: 108px; bottom: 65px; display: flex; gap: 46px; color: rgba(239,231,215,.68); font-size: 16px; text-transform: uppercase; letter-spacing: .12em; }
+    .cover .vertical-mark { position: absolute; right: 74px; top: 78px; writing-mode: vertical-rl; color: rgba(239,231,215,.68); font-size: 14px; letter-spacing: .22em; text-transform: uppercase; }
+    .cover .chapter-mark { position: absolute; right: 110px; bottom: 72px; width: 120px; height: 120px; border: 1px solid rgba(239,231,215,.48); border-radius: 50%; display: grid; place-items: center; color: #cf9b70; font-family: var(--display); font-size: 64px; }
+    .cover .map-hero { animation: coverDrift 18s ease-in-out infinite alternate; }
+    .cover-route { position: absolute; z-index: 6; right: 108px; bottom: 171px; width: 700px; height: 158px; opacity: .82; pointer-events: none; }
+    .cover-route path { fill: none; stroke: #d0a77f; stroke-width: 2; stroke-dasharray: 9 11; stroke-linecap: round; animation: routeFlow 8s linear infinite; }
+    .cover-route .route-point { fill: #d0a77f; stroke: var(--ink); stroke-width: 4; animation: routePulse 2.8s ease-in-out infinite; }
+    .cover-route .route-point:nth-of-type(2) { animation-delay: .75s; }
+    .cover-route .route-point:nth-of-type(3) { animation-delay: 1.5s; }
+    .cover-route text { fill: rgba(239,231,215,.77); font: 700 13px var(--body); letter-spacing: .16em; }
+    .cover-route .route-caption { fill: #d0a77f; font-size: 11px; letter-spacing: .24em; }
+    @keyframes coverDrift { from { background-position: 48% center; } to { background-position: 53% center; } }
+    @keyframes routeFlow { to { stroke-dashoffset: -160; } }
+    @keyframes routePulse { 0%, 100% { transform: scale(1); transform-origin: center; } 50% { transform: scale(1.5); transform-origin: center; } }
+
+    /* === SLIDE 2: THESIS / LOGIC CHAIN === */
+    .thesis { padding: 88px 104px 70px; background: var(--paper); }
+    .thesis::after { content: ''; position: absolute; z-index: 1; right: 0; top: 0; width: 720px; height: 100%; pointer-events: none; opacity: .12; background: linear-gradient(90deg, var(--paper) 0%, rgba(239,231,215,.3) 34%, rgba(239,231,215,.08) 100%), url('assets/great-lakes-detail.jpg') center / cover; filter: sepia(.25) saturate(.7); }
+    .thesis .topline { display: flex; justify-content: space-between; align-items: center; }
+    .thesis h2 { margin-top: 52px; max-width: 1070px; color: var(--wine-dark); }
+    .thesis .statement { margin-top: 27px; width: 930px; font-family: var(--display); font-size: 39px; line-height: 1.13; color: var(--ink); }
+    .chain { position: absolute; left: 104px; right: 104px; bottom: 180px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; align-items: center; }
+    .chain-card { min-height: 116px; border: 1px solid rgba(101,46,42,.43); padding: 18px 17px 15px; background: rgba(255,252,244,.24); position: relative; }
+    .chain-card::after { content: '→'; position: absolute; right: -22px; top: 36px; font-family: var(--display); font-size: 36px; color: var(--rust); }
+    .chain-card:last-child::after { content: ''; }
+    .chain-card .n { font-size: 15px; color: var(--rust); font-weight: 700; letter-spacing: .12em; }
+    .chain-card strong { display: block; margin-top: 15px; font-family: var(--display); font-size: 29px; line-height: .93; color: var(--wine-dark); }
+    .chain-card { cursor: pointer; transition: background .4s ease, transform .45s var(--ease), border-color .4s ease, box-shadow .45s var(--ease); }
+    .chain-card:hover, .chain-card:focus-visible, .chain-card.active { background: rgba(255,252,244,.82); border-color: var(--rust); transform: translateY(-9px); box-shadow: 0 12px 22px rgba(62,32,30,.12); outline: none; }
+    .logic-spotlight { position: absolute; z-index: 5; right: 104px; top: 368px; width: 440px; min-height: 170px; padding: 19px 22px 17px; border-left: 3px solid var(--rust); background: rgba(155,89,66,.1); }
+    .logic-spotlight .spotlight-kicker { color: var(--rust); font-size: 13px; letter-spacing: .13em; text-transform: uppercase; font-weight: 700; }
+    .logic-spotlight strong { display: block; margin-top: 10px; color: var(--wine-dark); font-family: var(--display); font-size: 35px; line-height: .98; }
+    .logic-spotlight p { margin-top: 9px; color: var(--ink-soft); font-size: 17px; line-height: 1.3; }
+    .thesis .note { position: absolute; right: 104px; top: 161px; width: 440px; padding: 22px 22px 20px; border-left: 3px solid var(--rust); background: rgba(155,89,66,.08); font-size: 19px; line-height: 1.4; color: var(--ink-soft); }
+
+    /* === TRANSITION SLIDES: MAKE THE CAUSAL CHAIN VISIBLE === */
+    .bridge { padding: 87px 104px 70px; color: var(--paper); background: var(--ink); }
+    .bridge.light { color: var(--ink); background: #e8dfcf; }
+    .bridge::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 84% 20%, rgba(181,138,86,.18), transparent 25%), linear-gradient(135deg, transparent 0 54%, rgba(101,46,42,.18) 54% 54.2%, transparent 54.2%); z-index: 1; }
+    .bridge .eyebrow { color: #d0a77f; }
+    .bridge.light .eyebrow { color: var(--wine); }
+    .bridge h2 { position: relative; z-index: 2; max-width: 1050px; margin-top: 26px; color: var(--paper); }
+    .bridge.light h2 { color: var(--wine-dark); }
+    .bridge-logic { position: relative; z-index: 2; max-width: 1040px; margin-top: 24px; font-family: var(--display); font-size: 38px; line-height: 1.08; color: #e5d8c4; }
+    .bridge.light .bridge-logic { color: var(--ink-soft); }
+    .bridge-logic em { color: #d0a77f; font-style: normal; }
+    .bridge.light .bridge-logic em { color: var(--wine); }
+    .bridge[data-title*="Environment"] { background-image: linear-gradient(90deg, rgba(36,27,23,.92), rgba(36,27,23,.68)), url('assets/pacific-northwest.jpg'); background-position: center; background-size: cover; }
+    .bridge[data-title*="Institutions"] { background-image: linear-gradient(90deg, rgba(36,27,23,.94), rgba(36,27,23,.7)), url('assets/west-southwest.jpg'); background-position: center; background-size: cover; }
+    .bridge[data-title*="Societies"] { background-image: linear-gradient(90deg, rgba(36,27,23,.93), rgba(36,27,23,.68)), url('assets/great-plains.jpg'); background-position: center; background-size: cover; }
+    .bridge.light[data-title*="Specialization"] { background-image: linear-gradient(90deg, rgba(232,223,207,.94), rgba(232,223,207,.72)), url('assets/south-atlantic.jpg'); background-position: center; background-size: cover; }
+    .bridge.light[data-title*="Technology"] { background-image: linear-gradient(90deg, rgba(232,223,207,.94), rgba(232,223,207,.72)), url('assets/great-lakes-plains.jpg'); background-position: center; background-size: cover; }
+    .bridge-steps { position: absolute; z-index: 3; left: 104px; right: 104px; top: 620px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+    .bridge-step { min-height: 174px; padding: 22px 24px 20px; border: 1px solid rgba(239,231,215,.36); background: rgba(62,32,30,.56); opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease), transform .7s var(--ease), background .4s ease; position: relative; overflow: hidden; }
+    .bridge-step::before { content: ''; position: absolute; inset: 0; z-index: 0; opacity: .22; background-position: center; background-size: cover; filter: saturate(.5) sepia(.2); transition: opacity .4s ease, transform .8s var(--ease); }
+    .bridge-step:nth-child(1)::before { background-image: url('assets/great-lakes-detail.jpg'); }
+    .bridge-step:nth-child(2)::before { background-image: url('assets/northeast.jpg'); }
+    .bridge-step:nth-child(3)::before { background-image: url('assets/texas-gulf.jpg'); }
+    .bridge-step > * { position: relative; z-index: 1; }
+    .bridge-step:hover::before { opacity: .38; transform: scale(1.08); }
+    .bridge.light .bridge-step { border-color: rgba(62,32,30,.26); background: rgba(255,252,244,.48); }
+    .slide.visible .bridge-step { opacity: 1; transform: translateY(0); }
+    .slide.visible .bridge-step:nth-child(1) { transition-delay: .18s; }
+    .slide.visible .bridge-step:nth-child(2) { transition-delay: .34s; }
+    .slide.visible .bridge-step:nth-child(3) { transition-delay: .5s; }
+    .bridge-step:hover { background: rgba(101,46,42,.82); transform: translateY(-8px); }
+    .bridge.light .bridge-step:hover { background: rgba(255,252,244,.88); }
+    .bridge-step .step-no { display: block; color: #d0a77f; font-size: 14px; letter-spacing: .14em; font-weight: 700; }
+    .bridge.light .bridge-step .step-no { color: var(--rust); }
+    .bridge-step h3 { margin-top: 12px; color: #f4e8d7; font-size: 39px; }
+    .bridge.light .bridge-step h3 { color: var(--wine-dark); }
+    .bridge-step p { margin-top: 9px; color: #d9cdbb; font-size: 19px; line-height: 1.3; }
+    .bridge.light .bridge-step p { color: var(--ink-soft); }
+    .bridge-rail { position: absolute; z-index: 2; left: 104px; right: 104px; top: 823px; height: 2px; background: rgba(208,167,127,.35); overflow: hidden; }
+    .bridge-rail::after { content: ''; display: block; width: 0; height: 100%; background: var(--rust); transition: width 1.1s var(--ease); }
+    .slide.visible .bridge-rail::after { width: 100%; }
+    .bridge-caption { position: absolute; z-index: 3; left: 104px; bottom: 64px; font-size: 17px; letter-spacing: .06em; color: rgba(239,231,215,.68); }
+    .bridge.light .bridge-caption { color: rgba(36,27,23,.66); }
+    .bridge-caption strong { color: #d0a77f; }
+    .bridge.light .bridge-caption strong { color: var(--wine); }
+
+    /* Transition variants: each bridge gets its own visual grammar. */
+    .bridge-ledger .bridge-steps { top: 540px; grid-template-columns: .92fr 1.16fr .92fr; align-items: stretch; }
+    .bridge-ledger .bridge-step { min-height: 270px; background: rgba(255,252,244,.68); border-color: rgba(62,32,30,.28); box-shadow: 10px 12px 0 rgba(101,46,42,.12); }
+    .bridge-ledger .bridge-step:nth-child(2) { transform: translateY(-27px); background: rgba(101,46,42,.86); color: var(--paper); }
+    .bridge-ledger .bridge-step:nth-child(2) h3 { color: #f4e8d7; }
+    .bridge-ledger .bridge-step:nth-child(2) p { color: #e7d8c3; }
+    .bridge-ledger .bridge-step::after { content: '制度'; position: absolute; right: 16px; bottom: -12px; font-family: var(--display); font-size: 105px; color: rgba(101,46,42,.1); }
+    .bridge-ledger .bridge-rail { top: 817px; background: rgba(101,46,42,.28); }
+    .bridge-flow .bridge-steps { top: 585px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .bridge-flow .bridge-step { min-height: 165px; padding: 29px 28px 18px 0; border: 0; border-top: 2px solid rgba(208,167,127,.66); border-radius: 0; background: transparent; }
+    .bridge-flow .bridge-step + .bridge-step { padding-left: 28px; border-left: 1px solid rgba(239,231,215,.25); }
+    .bridge-flow .bridge-step::before { inset: -8px auto auto -7px; width: 14px; height: 14px; opacity: 1; border-radius: 50%; background: var(--rust); filter: none; }
+    .bridge-flow .bridge-step:nth-child(2)::before { background: #d0a77f; }
+    .bridge-flow .bridge-step:nth-child(3)::before { background: var(--paper); }
+    .bridge-flow .bridge-step h3 { font-size: 45px; }
+    .bridge-flow .bridge-rail { top: 585px; left: 104px; right: 104px; background: transparent; }
+    .bridge-flow .bridge-rail::after { display: none; }
+    .bridge-compare .bridge-steps { top: 540px; grid-template-columns: 1fr 1.35fr 1fr; align-items: center; }
+    .bridge-compare .bridge-step { min-height: 215px; border-radius: 0 50px 0 50px; }
+    .bridge-compare .bridge-step:nth-child(2) { min-height: 265px; transform: rotate(-1.5deg); background: rgba(101,46,42,.84); }
+    .bridge-compare .bridge-step:nth-child(2) h3, .bridge-compare .bridge-step:nth-child(2) p { color: #f4e8d7; }
+    .bridge-compare .bridge-step:nth-child(1) { transform: rotate(1.5deg); }
+    .bridge-compare .bridge-step:nth-child(3) { transform: rotate(-1.5deg); }
+    .bridge-compare .bridge-rail { top: 826px; }
+    .bridge-tension .bridge-steps { top: 525px; grid-template-columns: 1fr 1fr 1fr; align-items: end; }
+    .bridge-tension .bridge-step { min-height: 220px; border: 0; border-bottom: 3px solid #d0a77f; background: linear-gradient(180deg, rgba(101,46,42,.12), rgba(62,32,30,.85)); }
+    .bridge-tension .bridge-step:nth-child(2) { min-height: 300px; border: 2px solid #d0a77f; border-bottom-width: 7px; transform: translateY(-28px); background: rgba(62,32,30,.82); }
+    .bridge-tension .bridge-step::after { content: '↔'; position: absolute; right: 20px; top: 12px; color: #d0a77f; font-family: var(--display); font-size: 52px; }
+    .bridge-tension .bridge-rail { top: 830px; }
+
+    /* === SLIDE 3: INDIGENOUS REGIONS === */
+    .indigenous { background: var(--ink); color: var(--paper); padding: 85px 104px 70px; }
+    .indigenous .left { width: 710px; }
+    .indigenous h2 { color: var(--paper); margin-top: 25px; font-size: 86px; }
+    .indigenous .intro { margin-top: 25px; width: 600px; color: #dbcdbb; font-size: 24px; line-height: 1.35; }
+    .indigenous .tomol { position: absolute; right: 95px; top: 89px; width: 840px; height: 510px; overflow: hidden; border: 1px solid rgba(239,231,215,.35); box-shadow: 22px 22px 0 rgba(101,46,42,.68); }
+    .indigenous .tomol img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.65) sepia(.18) contrast(1.05); }
+    .indigenous .tomol .caption { position: absolute; left: 26px; bottom: 22px; color: var(--paper); font-size: 15px; letter-spacing: .05em; text-transform: uppercase; text-shadow: 0 2px 10px #000; }
+    .region-grid { position: absolute; left: 104px; right: 104px; bottom: 123px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+    .region-card { border-top: 1px solid rgba(239,231,215,.42); padding-top: 15px; min-height: 115px; }
+    .region-card { cursor: pointer; transition: transform .4s var(--ease), border-color .35s ease, background .35s ease; }
+    .region-card:hover, .region-card:focus-visible, .region-card.active { transform: translateY(-8px); border-color: #d0a77f; background: rgba(101,46,42,.22); outline: none; }
+    .region-card h3 { font-size: 34px; color: #d0a77f; }
+    .region-card p { margin-top: 8px; color: #d9cdbb; font-size: 18px; line-height: 1.25; }
+    .indigenous-focus { margin-top: 21px; width: 585px; min-height: 93px; padding: 13px 17px; border-left: 3px solid var(--rust); background: rgba(101,46,42,.26); }
+    .indigenous-focus .focus-kicker { color: #d0a77f; font-size: 12px; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; }
+    .indigenous-focus strong { display: block; margin-top: 6px; color: var(--paper); font-family: var(--display); font-size: 30px; line-height: .95; }
+    .indigenous-focus p { margin-top: 5px; color: #d9cdbb; font-size: 16px; line-height: 1.25; }
+
+    /* === SLIDE 4: COLONIAL REGIONS === */
+    .colonial { padding: 82px 104px 65px; background: var(--paper); }
+    .colonial h2 { margin-top: 20px; color: var(--wine-dark); }
+    .colonial .map-strip { position: absolute; right: 104px; top: 95px; width: 600px; height: 310px; overflow: hidden; border: 1px solid rgba(36,27,23,.28); background: #d9d2c1; }
+    .colonial .map-strip img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.55) sepia(.35) contrast(.92); }
+    .colonial .map-strip::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(239,231,215,.36), transparent 35%, rgba(62,32,30,.1)); }
+    .colonial .question { margin-top: 28px; width: 900px; color: var(--ink-soft); font-family: var(--display); font-size: 35px; line-height: 1.15; }
+    .colonial-grid { position: absolute; left: 104px; right: 104px; top: 555px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 21px; }
+    .col-card { min-height: 260px; padding: 24px; border: 1px solid rgba(36,27,23,.22); background: rgba(255,252,244,.56); position: relative; overflow: hidden; }
+    .col-card::after { content: ''; position: absolute; inset: 0; z-index: 0; opacity: .13; background-size: cover; background-position: center; filter: saturate(.55) sepia(.2); pointer-events: none; }
+    .col-card:nth-child(1)::after { background-image: url('assets/northeast.jpg'); }
+    .col-card:nth-child(2)::after { background-image: url('assets/great-lakes-detail.jpg'); }
+    .col-card:nth-child(3)::after { background-image: url('assets/south-atlantic.jpg'); }
+    .col-card > * { position: relative; z-index: 1; }
+    .col-card::before { content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 7px; background: var(--rust); }
+    .col-card:nth-child(2)::before { background: var(--ochre); }
+    .col-card:nth-child(3)::before { background: var(--wine); }
+    .col-card h3 { color: var(--wine-dark); font-size: 37px; }
+    .col-card .geo { margin-top: 18px; font-size: 17px; letter-spacing: .04em; text-transform: uppercase; color: var(--rust); font-weight: 700; }
+    .col-card p { margin-top: 9px; font-size: 22px; line-height: 1.24; color: var(--ink-soft); }
+    .col-card .tag { position: absolute; right: 21px; bottom: 21px; font-size: 14px; letter-spacing: .11em; text-transform: uppercase; color: var(--wine); }
+
+    /* === SLIDE 5: LABOR / PROPERTY SYSTEMS === */
+    .labor { padding: 82px 104px 65px; background: #e8dfcf; }
+    .labor h2 { color: var(--wine-dark); margin-top: 20px; max-width: 940px; }
+    .labor .subline { margin-top: 18px; font-family: var(--display); font-size: 31px; color: var(--ink-soft); }
+    .labor::after { content: ''; position: absolute; z-index: 1; right: 0; top: 0; width: 790px; height: 100%; opacity: .13; background: linear-gradient(90deg, #e8dfcf, transparent), url('assets/west-southwest.jpg') center / cover; filter: sepia(.25) saturate(.7); pointer-events: none; }
+    .labor-grid { position: absolute; left: 104px; right: 104px; top: 505px; display: grid; grid-template-columns: 1.06fr 1fr 1fr; gap: 24px; }
+    .labor-card { min-height: 405px; padding: 28px; color: var(--paper); background: var(--wine-dark); position: relative; overflow: hidden; }
+    .labor-card::before { content: ''; position: absolute; inset: 0; z-index: 0; opacity: .2; background-size: cover; background-position: center; filter: saturate(.55) sepia(.2); }
+    .labor-card:nth-child(1)::before { background-image: url('assets/south-atlantic.jpg'); }
+    .labor-card:nth-child(2)::before { background-image: url('assets/northeast.jpg'); }
+    .labor-card:nth-child(3)::before { background-image: url('assets/great-plains.jpg'); }
+    .labor-card > * { position: relative; z-index: 1; }
+    .labor-card:nth-child(2) { background: #6f5746; }
+    .labor-card:nth-child(3) { background: #6f755d; }
+    .labor-card::after { content: attr(data-num); position: absolute; right: 18px; bottom: -23px; font-family: var(--display); font-size: 160px; line-height: 1; color: rgba(239,231,215,.13); }
+    .labor-card h3 { font-size: 43px; color: #f4e8d7; }
+    .labor-card .arrowline { margin-top: 22px; color: #e4c6a7; font-size: 19px; line-height: 1.4; }
+    .labor-card ul { margin: 19px 0 0; padding-left: 21px; color: rgba(239,231,215,.85); font-size: 19px; line-height: 1.35; }
+    .labor-card li { margin-bottom: 7px; }
+    .labor .bottom-claim { position: absolute; bottom: 55px; left: 104px; font-family: var(--display); color: var(--wine-dark); font-size: 30px; }
+
+    /* === SLIDE 6: TECHNOLOGY / TRANSPORT === */
+    .technology { background: var(--ink); color: var(--paper); }
+    .technology .top { padding: 80px 104px 0; }
+    .technology h2 { margin-top: 19px; color: var(--paper); }
+    .technology .map-rail { position: absolute; right: 0; top: 0; width: 930px; height: 100%; background: linear-gradient(90deg, var(--ink) 0%, rgba(36,27,23,.42) 27%, rgba(36,27,23,.08) 60%), url('assets/northeast.jpg') 58% center / cover; filter: saturate(.55) sepia(.26) contrast(1.04); opacity: .88; }
+    .technology .rail-line { position: absolute; left: 105px; right: 850px; top: 444px; height: 2px; background: var(--rust); transform: rotate(-7deg); transform-origin: left center; }
+    .technology .rail-line::before, .technology .rail-line::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 5px solid var(--rust); top: -9px; }
+    .technology .rail-line::before { left: 0; } .technology .rail-line::after { right: 0; }
+    .technology::after { content: ''; position: absolute; z-index: 1; left: 0; top: 490px; width: 840px; height: 385px; opacity: .24; background: linear-gradient(90deg, rgba(36,27,23,.35), var(--ink)), url('assets/great-lakes-plains.jpg') center / cover; mix-blend-mode: screen; pointer-events: none; }
+    .tech-grid { position: absolute; left: 104px; top: 550px; width: 780px; display: grid; gap: 14px; }
+    .tech-row { display: grid; grid-template-columns: 210px 1fr; gap: 22px; border-top: 1px solid rgba(239,231,215,.35); padding: 14px 160px 14px 0; background-position: right center; background-size: 145px 92px; background-repeat: no-repeat; }
+    .tech-row:nth-child(1) { background-image: linear-gradient(90deg, rgba(36,27,23,.98) 0%, rgba(36,27,23,.88) 72%, rgba(36,27,23,.1)), url('assets/great-lakes-detail.jpg'); }
+    .tech-row:nth-child(2) { background-image: linear-gradient(90deg, rgba(36,27,23,.98) 0%, rgba(36,27,23,.88) 72%, rgba(36,27,23,.1)), url('assets/south-atlantic.jpg'); }
+    .tech-row:nth-child(3) { background-image: linear-gradient(90deg, rgba(36,27,23,.98) 0%, rgba(36,27,23,.88) 72%, rgba(36,27,23,.1)), url('assets/northeast.jpg'); }
+    .tech-row h3 { color: #d0a77f; font-size: 32px; }
+    .tech-row p { color: #d9cdbb; font-size: 19px; line-height: 1.3; }
+    .tech-quote { position: absolute; right: 92px; bottom: 96px; width: 660px; font-family: var(--display); font-size: 42px; line-height: 1; color: var(--paper); text-shadow: 0 4px 25px rgba(0,0,0,.7); }
+
+    /* === SLIDE 7: NORTH SOUTH WEST === */
+    .regional { padding: 80px 104px 68px; background: var(--paper); }
+    .regional h2 { color: var(--wine-dark); margin-top: 19px; }
+    .regional .intro { margin-top: 17px; max-width: 900px; font-family: var(--display); font-size: 32px; line-height: 1.1; color: var(--ink-soft); }
+    .triad { position: absolute; left: 104px; right: 104px; bottom: 130px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .triad-card { height: 408px; position: relative; padding: 27px; overflow: hidden; color: var(--paper); background: var(--wine-dark); }
+    .triad-card:nth-child(2) { background: #705545; }
+    .triad-card:nth-child(3) { background: #6f755d; }
+    .triad-card::before { content: ''; position: absolute; inset: 0; opacity: .21; background-size: cover; background-position: center; mix-blend-mode: screen; }
+    .triad-card.north::before { background-image: url('assets/northeast.jpg'); }
+    .triad-card.south::before { background-image: url('assets/south-atlantic.jpg'); }
+    .triad-card.west::before { background-image: url('assets/great-plains.jpg'); }
+    .triad-card > * { position: relative; z-index: 2; }
+    .triad-card h3 { font-size: 59px; color: #f4e8d7; }
+    .triad-card .mini { margin-top: 14px; font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: #e2c4a5; }
+    .triad-card ul { margin: 32px 0 0; padding-left: 20px; font-size: 21px; line-height: 1.34; color: rgba(239,231,215,.9); }
+    .regional .bottom-claim { position: absolute; left: 104px; right: 104px; bottom: 52px; text-align: center; font-family: var(--display); font-size: 31px; color: var(--wine-dark); }
+
+    /* === INTERACTIVE MAP LENS / CSS 3D === */
+    .regional-map-module { position: absolute; right: 104px; top: 73px; width: 735px; height: 430px; padding: 16px 17px 14px; border: 1px solid rgba(62,32,30,.28); background: rgba(255,252,244,.62); box-shadow: 13px 13px 0 rgba(101,46,42,.12); perspective: 1200px; }
+    .map-module-head { display: flex; justify-content: space-between; align-items: center; color: var(--wine); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
+    .map-module-head .status { color: var(--rust); }
+    .map-lens { position: relative; height: 290px; margin-top: 11px; overflow: hidden; isolation: isolate; border: 1px solid rgba(36,27,23,.45); background: #cbc7b5; transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .55s var(--ease), box-shadow .55s var(--ease); box-shadow: 0 12px 22px rgba(62,32,30,.17); }
+    .map-lens-plane { position: absolute; inset: -8%; transform: translate3d(0,0,0) scale(1.06); transform-origin: center; transition: transform 1.1s var(--ease), filter 1.1s var(--ease); }
+    .map-lens-plane img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.52) sepia(.23) contrast(.98); }
+    .map-lens-grid { position: absolute; inset: 0; z-index: 2; opacity: .22; background-image: linear-gradient(rgba(62,32,30,.24) 1px, transparent 1px), linear-gradient(90deg, rgba(62,32,30,.24) 1px, transparent 1px); background-size: 74px 74px; mix-blend-mode: multiply; pointer-events: none; }
+    .map-lens-vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(circle at 50% 45%, transparent 35%, rgba(36,27,23,.3) 100%); transition: opacity .7s var(--ease); }
+    .map-lens[data-focus="north"] .map-lens-plane { transform: translate3d(-9%, 13%, 0) scale(1.65) rotate(-1deg); }
+    .map-lens[data-focus="south"] .map-lens-plane { transform: translate3d(-1%, -20%, 0) scale(1.62) rotate(.8deg); }
+    .map-lens[data-focus="west"] .map-lens-plane { transform: translate3d(20%, -4%, 0) scale(1.48) rotate(-.7deg); }
+    .map-lens[data-focus="north"] .map-lens-vignette,
+    .map-lens[data-focus="south"] .map-lens-vignette,
+    .map-lens[data-focus="west"] .map-lens-vignette { opacity: .56; }
+    .map-cutout { appearance: none; position: absolute; z-index: 5; width: 230px; height: 138px; display: grid; place-items: end start; padding: 16px; opacity: 0; pointer-events: none; border: 2px solid #ead7b7; background-image: url('assets/us-physical-landscape.jpg'); background-repeat: no-repeat; background-color: #8f8c71; box-shadow: 14px 18px 0 rgba(36,27,23,.23), 0 14px 25px rgba(36,27,23,.35); clip-path: polygon(7% 12%, 85% 3%, 98% 28%, 91% 82%, 61% 96%, 16% 87%, 0 53%); transform: translate3d(0, 18px, 70px) rotate(0deg) scale(.84); transition: opacity .45s ease, transform .95s var(--ease), filter .8s var(--ease); filter: saturate(.68) sepia(.16) contrast(1.06); cursor: pointer; }
+    .map-cutout span { padding: 5px 8px 4px; color: var(--paper); background: var(--wine-dark); font-size: 13px; letter-spacing: .14em; font-weight: 700; }
+    .cutout-north { left: 35px; top: 28px; background-size: 735px 588px; background-position: 3% 3%; }
+    .cutout-south { right: 34px; bottom: 23px; background-size: 735px 588px; background-position: 93% 95%; }
+    .cutout-west { left: 32px; bottom: 25px; background-size: 735px 588px; background-position: 4% 65%; }
+    .map-lens[data-focus="north"] .cutout-north,
+    .map-lens[data-focus="south"] .cutout-south,
+    .map-lens[data-focus="west"] .cutout-west { opacity: 1; pointer-events: auto; transform: translate3d(0,-16px,105px) rotate(-3deg) scale(1.1); }
+    .map-lens[data-focus="south"] .cutout-south { transform: translate3d(0,-13px,105px) rotate(3deg) scale(1.1); }
+    .map-lens[data-focus="west"] .cutout-west { transform: translate3d(0,-12px,105px) rotate(-4deg) scale(1.1); }
+    .map-marker { position: absolute; z-index: 6; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: var(--paper); background: var(--wine); border: 2px solid var(--paper); font-family: var(--display); font-size: 18px; box-shadow: 0 5px 13px rgba(36,27,23,.28); transition: transform .55s var(--ease), background .45s ease; }
+    .map-marker.north { left: 282px; top: 55px; }
+    .map-marker.south { left: 403px; top: 210px; }
+    .map-marker.west { left: 126px; top: 161px; }
+    .map-lens[data-focus="north"] .map-marker.north,
+    .map-lens[data-focus="south"] .map-marker.south,
+    .map-lens[data-focus="west"] .map-marker.west { transform: scale(1.28); background: var(--rust); }
+    .map-controls { display: flex; gap: 8px; margin-top: 12px; }
+    .map-controls button { appearance: none; border: 1px solid rgba(101,46,42,.42); border-radius: 999px; padding: 7px 12px 6px; color: var(--wine-dark); background: rgba(255,252,244,.62); font: 700 12px var(--body); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .35s ease, color .35s ease, transform .35s var(--ease); }
+    .map-controls button:hover, .map-controls button:focus-visible, .map-controls button.active { color: var(--paper); background: var(--wine); outline: none; transform: translateY(-2px); }
+    .map-readout { min-height: 25px; margin-top: 8px; color: var(--ink-soft); font-size: 15px; line-height: 1.2; }
+
+    /* === SLIDE 8: SECTIONAL CONFLICT === */
+    .conflict { background: var(--ink); color: var(--paper); }
+    .conflict .map { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(36,27,23,.91) 0%, rgba(36,27,23,.75) 42%, rgba(36,27,23,.16) 100%), url('assets/us-physical-landscape.jpg') center / cover; filter: saturate(.48) sepia(.30) contrast(1.12); }
+    .conflict .top { position: absolute; left: 104px; top: 80px; width: 1100px; }
+    .conflict h2 { color: var(--paper); margin-top: 20px; }
+    .conflict .intro { margin-top: 19px; width: 770px; color: #d9cdbb; font-size: 27px; line-height: 1.25; }
+    .conflict .pill-row { position: absolute; left: 104px; bottom: 182px; display: flex; gap: 13px; }
+    .conflict .event { width: 238px; min-height: 133px; padding: 19px; border: 1px solid rgba(239,231,215,.45); background: rgba(62,32,30,.72); cursor: pointer; transition: transform .45s var(--ease), background .35s ease, border-color .35s ease, box-shadow .45s var(--ease); }
+    .conflict .event:hover, .conflict .event:focus-visible, .conflict .event.active { transform: translateY(-10px); background: rgba(101,46,42,.9); border-color: #d0a77f; box-shadow: 0 12px 24px rgba(0,0,0,.24); outline: none; }
+    .conflict .event .year { font-family: var(--display); font-size: 43px; color: #d0a77f; }
+    .conflict .event p { margin-top: 6px; font-size: 18px; line-height: 1.25; color: #e6d8c4; }
+    .conflict .right-note { position: absolute; right: 100px; top: 290px; width: 410px; padding: 27px; border-left: 3px solid #cf9b70; background: rgba(36,27,23,.7); color: #e5d8c4; font-size: 21px; line-height: 1.35; }
+    .conflict .focus-line { display: inline-block; margin-top: 8px; color: #d0a77f; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; }
+
+    /* === SLIDE 9: SYNTHESIS === */
+    .synthesis { padding: 84px 104px 67px; background: var(--paper); }
+    .synthesis::after { content: ''; position: absolute; z-index: 1; inset: 0; pointer-events: none; opacity: .08; background: url('assets/us-physical-landscape.jpg') center / cover; filter: sepia(.35) saturate(.6); }
+    .synthesis h2 { color: var(--wine-dark); margin-top: 18px; max-width: 1000px; }
+    .synthesis .answer { margin-top: 21px; width: 900px; font-family: var(--display); font-size: 37px; line-height: 1.12; color: var(--ink); }
+    .synthesis .answer em { color: var(--wine); font-style: normal; }
+    .debate { position: absolute; right: 104px; top: 125px; width: 610px; padding: 25px 29px 23px; border: 1px solid rgba(101,46,42,.42); background: rgba(255,252,244,.45); }
+    .debate h3 { color: var(--wine-dark); font-size: 37px; }
+    .debate ol { margin: 17px 0 0; padding-left: 27px; color: var(--ink-soft); font-size: 18px; line-height: 1.35; }
+    .debate li { margin-bottom: 8px; }
+    .synthesis-visual { position: absolute; z-index: 5; left: 104px; right: 104px; top: 505px; height: 155px; display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; border: 1px solid rgba(101,46,42,.34); background: linear-gradient(90deg, rgba(62,32,30,.88), rgba(62,32,30,.72)), url('assets/great-lakes-plains.jpg') center / cover; box-shadow: 12px 12px 0 rgba(101,46,42,.1); }
+    .synthesis-visual::after { content: ''; position: absolute; left: 7%; right: 7%; top: 50%; height: 1px; background: rgba(208,167,127,.75); transform: scaleX(0); transform-origin: left; transition: transform 1.2s var(--ease); }
+    .slide.visible .synthesis-visual::after { transform: scaleX(1); }
+    .synthesis-node { position: relative; z-index: 2; padding: 21px 29px; color: var(--paper); border-right: 1px solid rgba(239,231,215,.28); opacity: 0; transform: translateY(18px); transition: opacity .65s var(--ease), transform .65s var(--ease); }
+    .synthesis-node:last-child { border-right: 0; }
+    .slide.visible .synthesis-node { opacity: 1; transform: translateY(0); }
+    .slide.visible .synthesis-node:nth-child(2) { transition-delay: .18s; }
+    .slide.visible .synthesis-node:nth-child(3) { transition-delay: .36s; }
+    .synthesis-node .node-kicker { color: #d0a77f; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
+    .synthesis-node h3 { margin-top: 8px; color: #f4e8d7; font-size: 34px; }
+    .synthesis-node p { margin-top: 6px; color: #e5d8c4; font-size: 15px; line-height: 1.2; }
+    .final-chain { position: absolute; left: 104px; right: 104px; top: 718px; display: flex; align-items: center; gap: 0; }
+    .final-chain .node { flex: 1; min-height: 86px; padding: 19px 16px; border-top: 3px solid var(--rust); border-bottom: 1px solid rgba(36,27,23,.22); font-family: var(--display); font-size: 29px; color: var(--wine-dark); text-align: center; }
+    .final-chain .arrow { color: var(--rust); font-family: var(--display); font-size: 37px; padding: 0 8px; }
+    .synthesis .bottom-line { position: absolute; bottom: 55px; left: 104px; font-size: 18px; letter-spacing: .05em; color: var(--wine); text-transform: uppercase; }
+
+    /* === SLIDE 10: SOURCES / CREDITS === */
+    .sources { background: var(--wine-dark); color: var(--paper); padding: 85px 104px 60px; }
+    .sources h2 { color: var(--paper); margin-top: 18px; }
+    .sources .source-grid { margin-top: 43px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 70px; width: 1220px; }
+    .sources .source-item { border-top: 1px solid rgba(239,231,215,.38); padding-top: 13px; color: #e2d4c0; font-size: 18px; line-height: 1.35; }
+    .sources .source-item strong { display: block; color: #d0a77f; font-family: var(--display); font-size: 28px; }
+    .sources .source-item a { color: #d0a77f; text-decoration: none; border-bottom: 1px solid rgba(208,167,127,.55); }
+    .sources .closing { position: absolute; right: 106px; bottom: 138px; width: 420px; font-family: var(--display); font-size: 49px; line-height: .97; color: #f4e8d7; }
+    .sources .credit { position: absolute; left: 104px; bottom: 48px; font-size: 14px; color: rgba(239,231,215,.67); }
+
+    /* === NOTES / HUD / INLINE EDITOR === */
+    .deck-hud { position: fixed; inset: 0; pointer-events: none; z-index: 2000; color: var(--paper); font-family: var(--body); }
+    .progress { position: fixed; left: 25px; right: 25px; bottom: 12px; height: 3px; background: rgba(239,231,215,.2); overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; background: var(--rust); transition: width .35s var(--ease); }
+    .hud-count { position: fixed; right: 26px; bottom: 19px; font-size: 13px; letter-spacing: .14em; color: rgba(239,231,215,.72); }
+    .help { position: fixed; right: 25px; top: 19px; font-size: 12px; letter-spacing: .11em; color: rgba(239,231,215,.54); text-transform: uppercase; }
+    .edit-hotzone { position: fixed; left: 0; top: 0; width: 88px; height: 88px; pointer-events: auto; }
+    .edit-toggle { position: fixed; left: 19px; top: 18px; pointer-events: none; opacity: 0; border: 1px solid rgba(239,231,215,.4); background: rgba(36,27,23,.87); color: var(--paper); border-radius: 50%; width: 44px; height: 44px; cursor: pointer; font-size: 18px; transition: opacity .25s; }
+    .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+    body.editing [contenteditable="true"] { outline: 2px dashed rgba(208,167,127,.8); outline-offset: 5px; cursor: text; }
+    .edit-toast { position: fixed; left: 50%; top: 20px; transform: translateX(-50%) translateY(-15px); opacity: 0; background: var(--wine-dark); color: var(--paper); border: 1px solid rgba(239,231,215,.28); padding: 10px 17px; font-size: 13px; letter-spacing: .08em; pointer-events: none; transition: .25s; }
+    .edit-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .notes-drawer { position: fixed; z-index: 5000; right: 18px; top: 18px; bottom: 18px; width: min(440px, 35vw); padding: 22px; background: rgba(239,231,215,.97); color: var(--ink); box-shadow: 0 20px 70px rgba(0,0,0,.42); transform: translateX(110%); transition: transform .42s var(--ease); overflow: auto; border-left: 4px solid var(--rust); }
+    .notes-drawer.open { transform: translateX(0); }
+    .notes-drawer h3 { font-size: 34px; color: var(--wine-dark); }
+    .notes-drawer .note-meta { margin-top: 7px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--rust); }
+    .notes-drawer .notes-body { margin-top: 20px; font-size: 17px; line-height: 1.55; color: var(--ink-soft); white-space: pre-wrap; }
+    .notes-close { position: absolute; right: 16px; top: 14px; border: 0; background: transparent; color: var(--wine); cursor: pointer; font-size: 20px; }
+    .overview { position: fixed; inset: 0; z-index: 4500; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 38px; background: rgba(36,27,23,.97); opacity: 0; pointer-events: none; transition: opacity .3s; overflow: auto; }
+    .overview.open { opacity: 1; pointer-events: auto; }
+    .overview button { border: 1px solid rgba(239,231,215,.3); background: #efe7d7; min-height: 150px; padding: 0; cursor: pointer; position: relative; overflow: hidden; }
+    .overview button span { position: absolute; left: 12px; bottom: 9px; background: rgba(36,27,23,.84); color: var(--paper); padding: 5px 8px; font-size: 12px; letter-spacing: .08em; }
+
+    /* === UTILITY === */
+    .tiny-line { display: flex; align-items: center; gap: 10px; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--rust); font-weight: 700; }
+    .italic { font-family: var(--display); font-style: italic; }
+    .muted { color: var(--ink-soft); }
+    .notes { display: none; }
+  </style>
+</head>
+<body>
+  <div class="deck-viewport" id="viewport">
+    <main class="deck-stage" id="deckStage">
+
+      <!-- === SLIDE 1: COVER === -->
+      <section class="slide cover active visible" data-title="Cover">
+        <div class="map-hero"></div>
+        <svg class="cover-route" viewBox="0 0 700 158" aria-hidden="true">
+          <path d="M38 112 C168 35 254 116 370 74 S558 38 662 93"></path>
+          <circle class="route-point" cx="38" cy="112" r="7"></circle>
+          <circle class="route-point" cx="370" cy="74" r="7"></circle>
+          <circle class="route-point" cx="662" cy="93" r="7"></circle>
+          <text x="18" y="144">LANDSCAPE</text><text x="320" y="49">REGION</text><text x="575" y="124">SOCIETY</text>
+          <text class="route-caption" x="18" y="21">A VISUAL LOGIC CHAIN</text>
+        </svg>
+        <div class="cover-content">
+          <div class="kicker reveal">American History · Research Project</div>
+          <h1 class="reveal delay-1">Geography,<br><em>Regionalism,</em><br>and Society</h1>
+          <p class="subtitle reveal delay-2">How landscapes became economies, social systems, and political divisions — from pre-colonial North America to 1860.</p>
+        </div>
+        <div class="vertical-mark reveal delay-3">Pre-Colonial America — 1860</div>
+        <div class="meta reveal delay-3"><span>AP US History</span><span>Rachel Tan · Greta Wang</span></div>
+        <div class="chapter-mark reveal-scale delay-4">01</div>
+        <div class="notes">Open by saying: Our argument is not that geography mechanically determined American history. Geography created opportunities and limitations; markets, technology, and institutions determined how those opportunities were used.</div>
+      </section>
+
+      <!-- === SLIDE 2: THESIS === -->
+      <section class="slide thesis" data-title="Thesis / Logic">
+        <div class="topline reveal"><span class="eyebrow">01 / The framework</span><span class="pill"><span class="dot"></span> Geography is the starting point</span></div>
+        <h2 class="reveal delay-1">Geography created possibilities.<br>Institutions shaped the consequences.</h2>
+        <p class="statement reveal delay-2">Natural conditions encouraged different activities — but markets, technology, political institutions, land policies, and labor systems transformed those differences into regional economies, social inequalities, and political divisions.</p>
+        <div class="note reveal delay-3"><strong>Key qualification</strong><br>Geography did not determine outcomes by itself. Human decisions determined who controlled resources, who performed the labor, and who benefited from growth.</div>
+        <div class="logic-spotlight reveal delay-3" id="logicSpotlight">
+          <div class="spotlight-kicker" id="logicKicker">Selected layer / 01</div>
+          <strong id="logicTitle">Geographic conditions</strong>
+          <p id="logicText">Start with the physical world — but treat it as a set of possibilities, not a fixed destiny.</p>
+        </div>
+        <div class="chain reveal delay-4">
+          <div class="chain-card active" role="button" tabindex="0" data-layer-focus="1"><span class="n">01</span><strong>Geographic<br>conditions</strong></div>
+          <div class="chain-card" role="button" tabindex="0" data-layer-focus="2"><span class="n">02</span><strong>Economic<br>specialization</strong></div>
+          <div class="chain-card" role="button" tabindex="0" data-layer-focus="3"><span class="n">03</span><strong>Labor &<br>property</strong></div>
+          <div class="chain-card" role="button" tabindex="0" data-layer-focus="4"><span class="n">04</span><strong>Technology &<br>transport</strong></div>
+          <div class="chain-card" role="button" tabindex="0" data-layer-focus="5"><span class="n">05</span><strong>Social<br>conditions</strong></div>
+          <div class="chain-card" role="button" tabindex="0" data-layer-focus="6"><span class="n">06</span><strong>Sectional<br>conflict</strong></div>
+        </div>
+        <div class="source-line">Framework from the project outline; supported by Carlos, Cameron & Duff, Sokoloff & Engerman, Atack & Margo, and Nagy.</div>
+        <div class="slide-no">02</div>
+        <div class="notes">We use six layers. First, geography creates different possibilities. Second, regions specialize economically. Third, economic specialization creates labor and property systems. Fourth, technology changes the value of geographic advantages. Fifth, those systems shape social conditions. Finally, regional differences become political conflict. The chain is historical and cumulative rather than perfectly linear.</div>
+      </section>
+
+      <!-- === SLIDE 3: INDIGENOUS === -->
+      <section class="slide indigenous" data-title="Layer 1 / Indigenous societies">
+        <div class="left">
+          <div class="eyebrow reveal" style="color:#d0a77f">Layer 1 / Before colonization</div>
+          <h2 class="reveal delay-1">Different environments,<br>different possibilities.</h2>
+          <p class="intro reveal delay-2">North America was not an empty or economically undeveloped space. Indigenous societies adapted to — and actively modified — very different environments.</p>
+          <div class="indigenous-focus reveal delay-3" id="indigenousFocus"><div class="focus-kicker">Choose a region to trace the mechanism</div><strong id="indigenousFocusTitle">Environment → economic practice</strong><p id="indigenousFocusText">Click one of the four regional cards below. The point is adaptation, not environmental determinism.</p></div>
+        </div>
+        <figure class="tomol reveal-scale delay-2"><img src="assets/chumash-tomol.jpg" alt="Chumash tomol canoe crossing the water at sunrise"><div class="caption">Chumash tomol · coastal resources → maritime trade</div></figure>
+        <div class="region-grid reveal delay-3">
+          <div class="region-card active" role="button" tabindex="0" data-region-focus="southwest"><h3>Southwest</h3><p>Arid climate → irrigation agriculture and settled communities.</p></div>
+          <div class="region-card" role="button" tabindex="0" data-region-focus="northwest"><h3>Pacific Northwest</h3><p>Coastal resources and forests → fishing, trade, complex communities.</p></div>
+          <div class="region-card" role="button" tabindex="0" data-region-focus="woodlands"><h3>Eastern Woodlands</h3><p>Forests, rivers, fertile land → agriculture, hunting, regional trade.</p></div>
+          <div class="region-card" role="button" tabindex="0" data-region-focus="plains"><h3>Great Plains</h3><p>Grasslands and mobile resources → hunting and later horse-based societies.</p></div>
+        </div>
+        <div class="source-line" style="color:rgba(239,231,215,.66)">Image: NOAA / Robert Schwemmer. Argument: Carlos; Cameron & Duff.</div>
+        <div class="slide-no" style="color:#d0a77f">03</div>
+        <div class="notes">Before European colonization, North America contained diverse Indigenous economies and social organizations. Carlos shows that Chumash communities used coastal resources, developed plank canoes, organized trade, and used shell-bead money. Cameron and Duff show that similar environmental pressures could produce different settlement outcomes because historical connections and social choices mattered. Transition: European colonization later reorganized these environments around Atlantic markets, private property, imperial policy, and new labor systems.</div>
+      </section>
+
+      <!-- === TRANSITION 1: LAYER 1 → LAYER 2 === -->
+      <section class="slide bridge bridge-map" data-title="Transition / Environment to specialization">
+        <div class="eyebrow reveal">Transition / Layer 1 → Layer 2</div>
+        <h2 class="reveal delay-1">Environmental differences became<br>regional economic differences.</h2>
+        <p class="bridge-logic reveal delay-2">The mechanism was not geography alone: <em>environment + markets + institutions</em> converted possibilities into specialization.</p>
+        <div class="bridge-steps">
+          <article class="bridge-step"><span class="step-no">01 / STARTING CONDITION</span><h3>Environment</h3><p>Climate, soil, waterways, forests, and coastlines created different possibilities.</p></article>
+          <article class="bridge-step"><span class="step-no">02 / TRANSFORMATION</span><h3>Colonial markets</h3><p>Atlantic demand made some resources and crops more profitable than others.</p></article>
+          <article class="bridge-step"><span class="step-no">03 / RESULT</span><h3>Regional economies</h3><p>New England, the Middle Colonies, and the South developed distinct economic profiles.</p></article>
+        </div>
+        <div class="bridge-rail"></div>
+        <div class="bridge-caption"><strong>What changes?</strong> Indigenous adaptation becomes colonial reorganization.</div>
+        <div class="slide-no" style="color:#d0a77f">04</div>
+        <div class="notes">This is the first causal transition. Layer 1 shows that environments created possibilities, but Indigenous societies made choices within them. Layer 2 asks what happened when colonization connected those environments to Atlantic markets, imperial rules, and private property. The result was not one American economy, but regional specialization.</div>
+      </section>
+
+      <!-- === SLIDE 5: COLONIAL REGIONS === -->
+      <section class="slide colonial" data-title="Layer 2 / Colonial regions">
+        <div class="eyebrow reveal">Layer 2 / 1500s–1750s</div>
+        <h2 class="reveal delay-1">Geography encouraged<br>regional specialization.</h2>
+        <p class="question reveal delay-2">The question is not whether geography caused an economy, but how markets and institutions converted geographic advantages into profitable systems.</p>
+        <figure class="map-strip reveal-scale delay-2"><img src="assets/northeast.jpg" alt="Relief map of the northeastern United States and the Atlantic coast"></figure>
+        <div class="colonial-grid reveal delay-3">
+          <article class="col-card"><h3>New England</h3><div class="geo">Rocky soil · short growing season · coastline</div><p>Fishing, shipbuilding, timber, trade, and port towns.</p><div class="tag">Maritime economy</div></article>
+          <article class="col-card"><h3>Middle Colonies</h3><div class="geo">Fertile soil · rivers · ports</div><p>Grain farming, commerce, immigration, New York and Philadelphia.</p><div class="tag">Commercial diversity</div></article>
+          <article class="col-card"><h3>Southern Colonies</h3><div class="geo">Warm climate · fertile land · waterways</div><p>Tobacco, rice, indigo, export agriculture, plantations.</p><div class="tag">Plantation economy</div></article>
+        </div>
+        <div class="source-line">Map: user-provided physical landscape reference. Historical comparison: McCusker & Menard; Slater.</div>
+        <div class="slide-no">05</div>
+        <div class="notes">Colonial geography encouraged specialization. New England’s rocky soil and short growing season limited large-scale staple agriculture, but forests and coastline supported fishing, shipbuilding, timber, and Atlantic trade. The Middle Colonies combined fertile land and waterways, supporting grain production, ports, and a diverse population. The Southern Colonies had a climate and soil suited to tobacco, rice, and indigo. Markets made certain crops profitable, colonial governments shaped land ownership, and imperial trade connected local production to Atlantic demand.</div>
+      </section>
+
+      <!-- === TRANSITION 2: LAYER 2 → LAYER 3 === -->
+      <section class="slide bridge light bridge-ledger" data-title="Transition / Specialization to institutions">
+        <div class="eyebrow reveal">Transition / Layer 2 → Layer 3</div>
+        <h2 class="reveal delay-1">A profitable regional economy<br>requires a labor system.</h2>
+        <p class="bridge-logic reveal delay-2">Once regions specialized, the central question became: <em>who controls land, labor, and the gains from production?</em></p>
+        <div class="bridge-steps">
+          <article class="bridge-step"><span class="step-no">01 / ECONOMIC SIGNAL</span><h3>Profitable crop</h3><p>Tobacco, rice, grain, timber, and trade created different labor demands.</p></article>
+          <article class="bridge-step"><span class="step-no">02 / INSTITUTIONAL CHOICE</span><h3>Land policy</h3><p>Property rules and colonial power determined who could claim and keep land.</p></article>
+          <article class="bridge-step"><span class="step-no">03 / SOCIAL RESULT</span><h3>Labor regime</h3><p>Wage labor, indenture, slavery, and Indigenous dispossession produced unequal societies.</p></article>
+        </div>
+        <div class="bridge-rail"></div>
+        <div class="bridge-caption"><strong>What changes?</strong> Regional specialization becomes ownership, labor, and hierarchy.</div>
+        <div class="slide-no">06</div>
+        <div class="notes">Layer 2 explains what regions produced. Layer 3 explains how production became social structure. A crop or resource did not automatically create slavery or inequality; institutions, markets, law, and racial ideology organized the labor needed to exploit that geographic opportunity.</div>
+      </section>
+
+      <!-- === SLIDE 7: LABOR / PROPERTY === -->
+      <section class="slide labor" data-title="Layer 3 / Labor and property">
+        <div class="eyebrow reveal">Layer 3 / Economic systems become social systems</div>
+        <h2 class="reveal delay-1">Who owns the land?<br>Who controls the labor?</h2>
+        <p class="subline reveal delay-2">Economic geography became social structure through institutions.</p>
+        <div class="labor-grid reveal delay-3">
+          <article class="labor-card" data-num="S"><h3>South</h3><div class="arrowline">Plantation crops → large labor demand → racialized hereditary slavery</div><ul><li>Land and wealth concentrated among planters.</li><li>Enslaved people denied freedom, property, and political rights.</li></ul></article>
+          <article class="labor-card" data-num="N"><h3>North</h3><div class="arrowline">Small farms, commerce, manufacturing → wage labor and immigration</div><ul><li>Merchants and industrial employers gained influence.</li><li>Class divisions still shaped daily life.</li></ul></article>
+          <article class="labor-card" data-num="W"><h3>West</h3><div class="arrowline">Land and resources → settlement and opportunity for some</div><ul><li>Federal policy expanded settlement.</li><li>Indigenous peoples were displaced.</li></ul></article>
+        </div>
+        <div class="bottom-claim reveal delay-4">Geography made certain activities possible; institutions determined who benefited.</div>
+        <div class="source-line">Morgan; Berlin; Sokoloff & Engerman.</div>
+        <div class="slide-no">07</div>
+        <div class="notes">Do not say that geography directly caused slavery. The more accurate claim is that geography made plantation crops profitable, while markets, laws, racial ideology, and political institutions made slavery the dominant labor system. The North also had inequality: merchants, employers, workers, immigrants, and small farmers occupied different positions. The West offered opportunity to some settlers while that opportunity depended on the displacement of Indigenous peoples.</div>
+      </section>
+
+      <!-- === TRANSITION 3: LAYER 3 → LAYER 4 === -->
+      <section class="slide bridge bridge-flow" data-title="Transition / Institutions to technology">
+        <div class="eyebrow reveal">Transition / Layer 3 → Layer 4</div>
+        <h2 class="reveal delay-1">Technology changed the scale<br>of existing regional systems.</h2>
+        <p class="bridge-logic reveal delay-2">New transport did not remove inequality. It <em>connected, accelerated, and expanded</em> the systems already built around land and labor.</p>
+        <div class="bridge-steps">
+          <article class="bridge-step"><span class="step-no">01 / EXISTING STRUCTURE</span><h3>Land & labor</h3><p>Regions already had different property relations, labor systems, and political interests.</p></article>
+          <article class="bridge-step"><span class="step-no">02 / NEW CAPACITY</span><h3>Transport</h3><p>Canals, steamboats, roads, and railroads reduced distance and transport costs.</p></article>
+          <article class="bridge-step"><span class="step-no">03 / EXPANSION</span><h3>Market reach</h3><p>Production, migration, cities, and demand expanded beyond local environments.</p></article>
+        </div>
+        <div class="bridge-rail"></div>
+        <div class="bridge-caption"><strong>What changes?</strong> Geography becomes a network, not just a location.</div>
+        <div class="slide-no" style="color:#d0a77f">08</div>
+        <div class="notes">Technology is the hinge in the argument. It changes which geographic advantages matter, but it does not create a neutral society. Canals and railroads can connect places while also increasing the value of some land, strengthening some cities, and expanding labor systems such as plantation slavery.</div>
+      </section>
+
+      <!-- === SLIDE 9: TECHNOLOGY === -->
+      <section class="slide technology" data-title="Layer 4 / Technology and transport">
+        <div class="map-rail"></div>
+        <div class="top">
+          <div class="eyebrow reveal" style="color:#d0a77f">Layer 4 / Early Republic → Market Revolution</div>
+          <h2 class="reveal delay-1">Technology changed<br>the meaning of geography.</h2>
+        </div>
+        <div class="rail-line reveal-scale delay-2"></div>
+        <div class="tech-grid reveal delay-3">
+          <div class="tech-row"><h3>Transportation</h3><p>Canals, roads, steamboats, and railroads reduced transportation costs and connected inland production to ports.</p></div>
+          <div class="tech-row"><h3>Cotton gin</h3><p>Short-staple cotton became more profitable; cultivation expanded into the Deep South and demand for enslaved labor increased.</p></div>
+          <div class="tech-row"><h3>Industrialization</h3><p>Factories developed around ports, capital, transportation networks, and labor — creating wealth and class inequality.</p></div>
+        </div>
+        <div class="tech-quote reveal delay-4">Technology did not erase geography. It changed which geographic advantages mattered.</div>
+        <div class="source-line" style="color:rgba(239,231,215,.66)">Map: user-provided northeastern relief map. Evidence: Atack & Margo; Nagy.</div>
+        <div class="slide-no" style="color:#d0a77f">09</div>
+        <div class="notes">Technology changed which geographic advantages mattered. The Mississippi River connected western agriculture to national and international markets. The Erie Canal strengthened the connection between the interior and Atlantic ports. The cotton gin made short-staple cotton more profitable and helped cotton expand into the Deep South, increasing demand for enslaved labor. Atack and Margo show that railroad access promoted agricultural improvement and higher farm values. Nagy shows how agricultural hinterlands, transportation, and trade helped form cities and economic growth.</div>
+      </section>
+
+      <!-- === TRANSITION 4: LAYER 4 → LAYER 5 === -->
+      <section class="slide bridge light bridge-compare" data-title="Transition / Technology to societies">
+        <div class="eyebrow reveal">Transition / Layer 4 → Layer 5</div>
+        <h2 class="reveal delay-1">Faster connections did not erase place.<br>They intensified regional identity.</h2>
+        <p class="bridge-logic reveal delay-2">Transportation linked the country, while uneven access to <em>capital, land, labor, and markets</em> produced distinct regional societies.</p>
+        <div class="bridge-steps">
+          <article class="bridge-step"><span class="step-no">01 / NETWORK</span><h3>Movement</h3><p>Goods, workers, migrants, and ideas moved more quickly across the country.</p></article>
+          <article class="bridge-step"><span class="step-no">02 / UNEVEN ACCESS</span><h3>Regional hubs</h3><p>Ports, river towns, industrial cities, and plantation districts gained different advantages.</p></article>
+          <article class="bridge-step"><span class="step-no">03 / SOCIAL FORM</span><h3>Distinct societies</h3><p>Economic systems shaped class relations, race relations, urban life, and political culture.</p></article>
+        </div>
+        <div class="bridge-rail"></div>
+        <div class="bridge-caption"><strong>What changes?</strong> Connected markets produce visibly different ways of life.</div>
+        <div class="slide-no">10</div>
+        <div class="notes">Layer 4 explains connection; Layer 5 explains uneven outcomes. The same market revolution that integrated the United States also made the North, South, and West more socially distinct. Integration and regionalism therefore happened at the same time.</div>
+      </section>
+
+      <!-- === SLIDE 11: REGIONAL SOCIETIES === -->
+      <section class="slide regional" data-title="Layer 5 / Regional societies">
+        <div class="eyebrow reveal">Layer 5 / 1820s–1860</div>
+        <h2 class="reveal delay-1">Regional economic systems<br>shaped social conditions.</h2>
+        <p class="intro reveal delay-2">The same national expansion that created economic opportunity also produced inequality based on class, race, labor status, and land ownership.</p>
+        <div class="regional-map-module reveal-scale delay-2" id="regionalMapModule">
+          <div class="map-module-head"><span>Interactive map lens</span><span class="status" id="regionMapStatus">Map / reset</span></div>
+          <div class="map-lens" id="regionalMapLens" data-focus="reset" aria-label="Interactive map of regional North, South, and West">
+            <div class="map-lens-plane"><img src="assets/us-physical-landscape.jpg" alt="Physical map of the United States"></div>
+            <div class="map-lens-grid"></div>
+            <div class="map-lens-vignette"></div>
+            <button class="map-cutout cutout-north" data-map-region="north" aria-label="Focus on the North"><span>NORTH · INDUSTRY</span></button>
+            <button class="map-cutout cutout-south" data-map-region="south" aria-label="Focus on the South"><span>SOUTH · COTTON</span></button>
+            <button class="map-cutout cutout-west" data-map-region="west" aria-label="Focus on the West"><span>WEST · LAND</span></button>
+            <div class="map-marker north">N</div><div class="map-marker south">S</div><div class="map-marker west">W</div>
+          </div>
+          <div class="map-controls" aria-label="Choose map region">
+            <button type="button" data-map-region="reset" class="active">Reset</button>
+            <button type="button" data-map-region="north">North</button>
+            <button type="button" data-map-region="south">South</button>
+            <button type="button" data-map-region="west">West</button>
+          </div>
+          <div class="map-readout" id="regionMapReadout">Click a region: the map zooms in, then lifts that region out as a visual argument.</div>
+        </div>
+        <div class="triad reveal delay-3">
+          <article class="triad-card north"><h3>The North</h3><div class="mini">Industry · wage labor · cities</div><ul><li>Factories and urbanization</li><li>Immigration and working class</li><li>Economic diversity, class inequality</li></ul></article>
+          <article class="triad-card south"><h3>The South</h3><div class="mini">Cotton · slavery · planter power</div><ul><li>Cotton Kingdom expansion</li><li>Planter elite and racial hierarchy</li><li>Enslaved labor as foundation</li></ul></article>
+          <article class="triad-card west"><h3>The West</h3><div class="mini">Land · mining · settlement</div><ul><li>Farming and resource extraction</li><li>Opportunity for some settlers</li><li>Indigenous displacement and land inequality</li></ul></article>
+        </div>
+        <div class="bottom-claim reveal delay-4">Distinct societies — economically connected, socially unequal.</div>
+        <div class="source-line">Sellers; Johnson; Morgan; Berlin.</div>
+        <div class="slide-no">11</div>
+        <div class="notes">By the Market Revolution, the North, South, and West had become distinct regional societies. The North developed factories, wage labor, cities, immigration, and an industrial working class. The South’s Cotton Kingdom concentrated wealth and political power in a planter elite, while slavery and race structured the major institutions of society. The West combined settlement, farming, mining, opportunity, land inequality, and Indigenous displacement.</div>
+      </section>
+
+      <!-- === TRANSITION 5: LAYER 5 → LAYER 6 === -->
+      <section class="slide bridge bridge-tension" data-title="Transition / Societies to conflict">
+        <div class="eyebrow reveal">Transition / Layer 5 → Layer 6</div>
+        <h2 class="reveal delay-1">Different societies eventually competed<br>over the future of the nation.</h2>
+        <p class="bridge-logic reveal delay-2">Regional economic differences became political conflict when expansion forced one national question: <em>which labor and property system would spread west?</em></p>
+        <div class="bridge-steps">
+          <article class="bridge-step"><span class="step-no">01 / ECONOMY</span><h3>Specialization</h3><p>Industry, cotton, and western land created different regional interests.</p></article>
+          <article class="bridge-step"><span class="step-no">02 / SOCIETY</span><h3>Social interests</h3><p>Class, race, labor status, and land ownership shaped competing visions of freedom.</p></article>
+          <article class="bridge-step"><span class="step-no">03 / POLITICS</span><h3>Sectional crisis</h3><p>Territorial expansion turned regional difference into a struggle over national power.</p></article>
+        </div>
+        <div class="bridge-rail"></div>
+        <div class="bridge-caption"><strong>What changes?</strong> Regionalism becomes sectionalism when geography becomes policy.</div>
+        <div class="slide-no" style="color:#d0a77f">12</div>
+        <div class="notes">This is the final causal transition. Regional societies were economically connected, but their institutions and interests were not the same. Westward expansion made the conflict unavoidable because every new territory raised the question of whether slavery, free labor, or another land system would determine the nation’s future.</div>
+      </section>
+
+      <!-- === SLIDE 13: SECTIONAL CONFLICT === -->
+      <section class="slide conflict" data-title="Layer 6 / Sectional conflict">
+        <div class="map"></div>
+        <div class="top">
+          <div class="eyebrow reveal" style="color:#d0a77f">Layer 6 / Regionalism becomes sectionalism</div>
+          <h2 class="reveal delay-1">Economic interdependence<br>did not eliminate conflict.</h2>
+          <p class="intro reveal delay-2">As the United States expanded westward, geography became a political struggle over land, labor, slavery, and the balance of power.</p>
+        </div>
+        <div class="right-note reveal delay-3"><strong>Different regional interests</strong><span class="focus-line" id="conflictFocus">1820 · political balance</span><br><br>North: tariffs, internal improvements, industrial development.<br><br>South: free trade and protection of plantation agriculture and slavery.<br><br>West: land access, transportation, and political influence.</div>
+        <div class="pill-row reveal delay-4">
+          <div class="event active" role="button" tabindex="0" data-conflict="1820"><div class="year">1820</div><p>Missouri Compromise<br>Political balance</p></div>
+          <div class="event" role="button" tabindex="0" data-conflict="1850"><div class="year">1850</div><p>Compromise of 1850<br>New territories</p></div>
+          <div class="event" role="button" tabindex="0" data-conflict="1854"><div class="year">1854</div><p>Kansas–Nebraska Act<br>Popular sovereignty</p></div>
+          <div class="event" role="button" tabindex="0" data-conflict="1860"><div class="year">1860</div><p>Sectional crisis<br>Political polarization</p></div>
+        </div>
+        <div class="source-line" style="color:rgba(239,231,215,.66)">Foner; Potter. Political events are used as evidence of a larger regional process.</div>
+        <div class="slide-no" style="color:#d0a77f">13</div>
+        <div class="notes">The regions were economically interdependent. The South produced cotton, the North provided shipping, finance, manufacturing, and commercial services, and the West supplied agricultural products and land. But interdependence made national policy more important. Foner explains the free-labor ideology that opposed slavery’s expansion into the West. Potter shows how territorial expansion intensified sectional polarization. Use the three compromises as evidence, not as a list of events to memorize.</div>
+      </section>
+
+      <!-- === SLIDE 14: CONCLUSION === -->
+      <section class="slide synthesis" data-title="Conclusion / Debate">
+        <div class="eyebrow reveal">Conclusion / Critical analysis</div>
+        <h2 class="reveal delay-1">Geography was the starting point,<br>not the final explanation.</h2>
+        <p class="answer reveal delay-2">Geography created regional possibilities. <em>Institutions determined how those possibilities affected people’s lives.</em></p>
+        <div class="debate reveal delay-3"><h3>Questions worth debating</h3><ol><li>Did geography cause slavery, or did institutions make it dominant?</li><li>Did technology reduce geography’s importance, or create new advantages?</li><li>Was westward expansion equal opportunity or a redistribution of land and power?</li><li>Did interdependence promote unity or sectional conflict?</li></ol></div>
+        <div class="synthesis-visual reveal-scale">
+          <div class="synthesis-node"><div class="node-kicker">What geography offers</div><h3>Possibility</h3><p>Climate · soil · water · land · distance</p></div>
+          <div class="synthesis-node"><div class="node-kicker">What institutions decide</div><h3>Distribution</h3><p>Labor · property · markets · political power</p></div>
+          <div class="synthesis-node"><div class="node-kicker">What society experiences</div><h3>Consequence</h3><p>Opportunity · inequality · regional conflict</p></div>
+        </div>
+        <div class="final-chain reveal delay-4"><div class="node">Geography</div><div class="arrow">→</div><div class="node">Specialization</div><div class="arrow">→</div><div class="node">Institutions</div><div class="arrow">→</div><div class="node">Inequality</div><div class="arrow">→</div><div class="node">Conflict</div></div>
+        <div class="bottom-line reveal delay-5">Our final answer to the research question</div>
+        <div class="slide-no">14</div>
+        <div class="notes">Our final answer is that geography shaped American development by creating different regional possibilities, but markets, technology, labor systems, land policy, and political institutions determined how those possibilities affected people’s lives. Over time, economic specialization became different labor systems and social inequalities, which eventually produced regional political conflict. End with the distinction: geography created the conditions for regionalism; institutions determined the consequences.</div>
+      </section>
+
+      <!-- === SLIDE 15: SOURCES === -->
+      <section class="slide sources" data-title="Sources">
+        <div class="eyebrow reveal" style="color:#d0a77f">Selected evidence</div>
+        <h2 class="reveal delay-1">Sources behind the visual argument.</h2>
+        <div class="source-grid reveal delay-2">
+          <div class="source-item"><strong>Indigenous economies</strong>Carlos, “The Country They Built”; Cameron & Duff, “History and Process in Village Formation.”<br><a href="https://www.cambridge.org/core/journals/journal-of-economic-history/article/country-they-built-dynamic-and-complex-indigenous-economies-in-north-america-before-1492/6ABF7309E68FD58643597652A2EF7A03" target="_blank">Cambridge</a> · <a href="https://rex.libraries.wsu.edu/esploro/outputs/journalArticle/History-and-Process-in-Village-Formation/99900502154901842" target="_blank">WSU</a></div>
+          <div class="source-item"><strong>Colonial economies</strong>McCusker & Menard; Slater, “The Economy of Colonial British America.”<br><span>New England · Middle Colonies · Upper South</span></div>
+          <div class="source-item"><strong>Transport and growth</strong>Atack & Margo; Nagy, “Hinterlands, City Formation and Growth.”<br><a href="https://www.jtlu.org/index.php/jtlu/article/view/188" target="_blank">JTLU</a> · <a href="https://bse.eu/research/publications/hinterlands-city-formation-and-growth-evidence-us-westward-expansion" target="_blank">BSE</a></div>
+          <div class="source-item"><strong>Institutions and inequality</strong>Morgan; Berlin; Sokoloff & Engerman.<br><span>Labor · property · race · political power</span></div>
+          <div class="source-item"><strong>Regional societies</strong>Sellers, *The Market Revolution*; Johnson, *River of Dark Dreams*.<br><span>North · South · West</span></div>
+          <div class="source-item"><strong>Sectional conflict</strong>Foner, *Free Soil, Free Labor, Free Men*; Potter, *The Impending Crisis*.<br><span>Territory · slavery · political polarization</span></div>
+        </div>
+        <div class="closing reveal delay-3">Geography created the conditions.<br><em>Institutions shaped the consequences.</em></div>
+        <div class="credit">Maps: user-provided relief maps. Chumash image: NOAA / Robert Schwemmer. Historical map sources should be cited in the final bibliography.</div>
+        <div class="slide-no" style="color:#d0a77f">15</div>
+        <div class="notes">This source slide is for the final deck or handout. Before submitting the paper, verify exact edition, publication year, chapter title, DOI, and page numbers for JSTOR and Oxford sources from the PDFs or library records.</div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- === DECK HUD === -->
+  <div class="deck-hud" aria-hidden="true">
+    <div class="help">← → navigate · click maps/timeline · S notes · E edit · O overview · F fullscreen</div>
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="hud-count" id="hudCount">01 / 15</div>
+  </div>
+
+  <!-- === INLINE EDITOR === -->
+  <div class="edit-hotzone" id="editHotzone" title="Hover or press E for edit mode"></div>
+  <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✎</button>
+  <div class="edit-toast" id="editToast">EDIT MODE · click any text to revise · changes save locally</div>
+
+  <!-- === PRESENTER NOTES === -->
+  <aside class="notes-drawer" id="notesDrawer">
+    <button class="notes-close" id="notesClose" aria-label="Close notes">×</button>
+    <h3 id="notesTitle">Speaker notes</h3>
+    <div class="note-meta" id="notesMeta">Slide 01 / 15</div>
+    <div class="notes-body" id="notesBody"></div>
+  </aside>
+
+  <!-- === OVERVIEW === -->
+  <div class="overview" id="overview" aria-label="Slide overview"></div>
+
+  <script>
+    /* ================================================================
+       PRESENTATION CONTROLLER
+       Keyboard, wheel, touch, fullscreen, overview, notes, editing.
+       ================================================================ */
+    class SlidePresentation {
+      constructor() {
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.stage = document.getElementById('deckStage');
+        this.current = 0;
+        this.timer = null;
+        this.scaleStage();
+        window.addEventListener('resize', () => this.scaleStage());
+        this.bindKeyboard();
+        this.bindTouch();
+        this.bindWheel();
+        this.buildOverview();
+        this.show(0);
+        editor.restoreEdits();
+      }
+      scaleStage() {
+        const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        const x = (window.innerWidth - 1920 * factor) / 2;
+        const y = (window.innerHeight - 1080 * factor) / 2;
+        this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+      }
+      show(index) {
+        this.current = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === this.current);
+          slide.classList.toggle('visible', i === this.current);
+          const number = slide.querySelector('.slide-no');
+          if (number) number.textContent = String(i + 1).padStart(2, '0');
+        });
+        const pct = ((this.current + 1) / this.slides.length) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('hudCount').textContent = String(this.current + 1).padStart(2, '0') + ' / ' + String(this.slides.length).padStart(2, '0');
+        this.updateNotes();
+        history.replaceState(null, '', '#' + (this.current + 1));
+      }
+      next() { this.show(this.current + 1); }
+      prev() { this.show(this.current - 1); }
+      bindKeyboard() {
+        document.addEventListener('keydown', e => {
+          if (e.target && e.target.isContentEditable) return;
+          if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); this.next(); }
+          if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); this.prev(); }
+          if (e.key === 'Home') this.show(0);
+          if (e.key === 'End') this.show(this.slides.length - 1);
+          if (e.key.toLowerCase() === 's') document.getElementById('notesDrawer').classList.toggle('open');
+          if (e.key.toLowerCase() === 'e') editor.toggle();
+          if (e.key.toLowerCase() === 'o') document.getElementById('overview').classList.toggle('open');
+          if (e.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+          if (e.key === 'Escape') { document.getElementById('notesDrawer').classList.remove('open'); document.getElementById('overview').classList.remove('open'); }
+        });
+      }
+      bindWheel() {
+        let last = 0;
+        document.addEventListener('wheel', e => {
+          const now = Date.now();
+          if (now - last < 650) return;
+          if (Math.abs(e.deltaY) < 12) return;
+          last = now;
+          e.deltaY > 0 ? this.next() : this.prev();
+        }, { passive: true });
+      }
+      bindTouch() {
+        let startX = 0;
+        document.addEventListener('touchstart', e => startX = e.changedTouches[0].screenX, { passive: true });
+        document.addEventListener('touchend', e => { const dx = e.changedTouches[0].screenX - startX; if (Math.abs(dx) > 45) dx < 0 ? this.next() : this.prev(); }, { passive: true });
+      }
+      updateNotes() {
+        const slide = this.slides[this.current];
+        const note = slide.querySelector('.notes');
+        document.getElementById('notesTitle').textContent = slide.dataset.title || 'Speaker notes';
+        document.getElementById('notesMeta').textContent = `Slide ${String(this.current + 1).padStart(2,'0')} / ${String(this.slides.length).padStart(2,'0')}`;
+        document.getElementById('notesBody').textContent = note ? note.textContent.trim() : 'No notes for this slide.';
+      }
+      buildOverview() {
+        const o = document.getElementById('overview');
+        this.slides.forEach((slide, i) => {
+          const b = document.createElement('button');
+          b.innerHTML = `<span>${String(i + 1).padStart(2,'0')} · ${slide.dataset.title || 'Slide'}</span>`;
+          b.addEventListener('click', () => { this.show(i); o.classList.remove('open'); });
+          const color = getComputedStyle(slide).backgroundColor || '#efe7d7';
+          b.style.background = color;
+          o.appendChild(b);
+        });
+      }
+    }
+
+    /* === EDITOR === */
+    const editor = {
+      active: false,
+      selector: '.slide h1, .slide h2, .slide h3, .slide p, .slide li, .slide .eyebrow, .slide .kicker, .slide .subtitle, .slide .statement, .slide .question, .slide .intro, .slide .source-line, .slide .bottom-claim, .slide .bottom-line, .slide .tech-quote, .slide .closing, .slide .tag, .slide .geo, .slide .mini, .slide .caption, .slide .year, .slide .chain-card strong, .slide .logic-spotlight strong, .slide .indigenous-focus strong',
+      toggle() {
+        this.active = !this.active;
+        document.body.classList.toggle('editing', this.active);
+        document.querySelectorAll(this.selector).forEach(el => el.contentEditable = this.active ? 'true' : 'false');
+        document.getElementById('editToggle').classList.toggle('active', this.active);
+        const toast = document.getElementById('editToast');
+        toast.textContent = this.active ? 'EDIT MODE · click any text to revise · changes save locally' : 'EDIT MODE OFF · changes saved locally';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+        if (!this.active) this.save();
+      },
+      save() {
+        const payload = [...document.querySelectorAll('.slide')].map(s => [...s.querySelectorAll(this.selector)].map(el => ({ path: this.path(el, s), html: el.innerHTML })));
+        localStorage.setItem('geography-regionalism-edits-v3', JSON.stringify(payload));
+      },
+      path(el, root) { const all = [...root.querySelectorAll(this.selector)]; return all.indexOf(el); },
+      restoreEdits() {
+        try {
+          const payload = JSON.parse(localStorage.getItem('geography-regionalism-edits-v3') || 'null');
+          if (!payload) return;
+          document.querySelectorAll('.slide').forEach((s, i) => (payload[i] || []).forEach(item => { const el = [...s.querySelectorAll(this.selector)][item.path]; if (el) el.innerHTML = item.html; }));
+        } catch (e) { console.warn('Could not restore local edits', e); }
+      }
+    };
+    document.getElementById('editToggle').addEventListener('click', () => editor.toggle());
+    document.getElementById('editHotzone').addEventListener('click', () => editor.toggle());
+    document.getElementById('notesClose').addEventListener('click', () => document.getElementById('notesDrawer').classList.remove('open'));
+    let hideEdit;
+    const hotzone = document.getElementById('editHotzone');
+    const editToggle = document.getElementById('editToggle');
+    hotzone.addEventListener('mouseenter', () => { clearTimeout(hideEdit); editToggle.classList.add('show'); });
+    hotzone.addEventListener('mouseleave', () => { hideEdit = setTimeout(() => { if (!editor.active) editToggle.classList.remove('show'); }, 400); });
+    editToggle.addEventListener('mouseenter', () => clearTimeout(hideEdit));
+    editToggle.addEventListener('mouseleave', () => { hideEdit = setTimeout(() => { if (!editor.active) editToggle.classList.remove('show'); }, 400); });
+
+    /* === INTERACTIVE STORY ELEMENTS === */
+    function bindLogicChain() {
+      const cards = [...document.querySelectorAll('.thesis .chain-card[data-layer-focus]')];
+      const kicker = document.getElementById('logicKicker');
+      const title = document.getElementById('logicTitle');
+      const text = document.getElementById('logicText');
+      const content = {
+        '1': ['Geographic conditions', 'Start with the physical world — but treat it as a set of possibilities, not a fixed destiny.'],
+        '2': ['Economic specialization', 'Markets turn uneven environments into different regional activities, exports, and forms of wealth.'],
+        '3': ['Labor & property', 'Institutions decide who owns land, who works, and who receives the gains from regional production.'],
+        '4': ['Technology & transport', 'Canals, steamboats, roads, and railroads change the value and reach of geographic advantages.'],
+        '5': ['Social conditions', 'Economic systems become lived societies: class, race, labor status, migration, and urban life.'],
+        '6': ['Sectional conflict', 'When expansion forces regional systems into one national policy, economic difference becomes political crisis.']
+      };
+      const activate = card => {
+        const layer = card.dataset.layerFocus;
+        cards.forEach(item => item.classList.toggle('active', item === card));
+        kicker.textContent = `Selected layer / ${layer.padStart(2, '0')}`;
+        title.textContent = content[layer][0];
+        text.textContent = content[layer][1];
+      };
+      cards.forEach(card => {
+        card.addEventListener('click', () => activate(card));
+        card.addEventListener('keydown', key => {
+          if (key.key === 'Enter' || key.key === ' ') { key.preventDefault(); activate(card); }
+        });
+      });
+    }
+
+    function bindIndigenousRegions() {
+      const cards = [...document.querySelectorAll('.indigenous .region-card[data-region-focus]')];
+      const title = document.getElementById('indigenousFocusTitle');
+      const text = document.getElementById('indigenousFocusText');
+      const content = {
+        southwest: ['Aridity → irrigation and settlement', 'Water management transformed a difficult climate into agriculture and durable communities.'],
+        northwest: ['Coast + forest → fishing and trade', 'Abundant marine and forest resources supported exchange networks and complex communities.'],
+        woodlands: ['Rivers + fertile land → mixed economies', 'Forests, waterways, and cultivable land supported agriculture, hunting, and regional trade.'],
+        plains: ['Grasslands + mobility → hunting societies', 'Mobile resources encouraged movement and adaptation; later horse cultures changed the scale of mobility.']
+      };
+      const activate = card => {
+        const region = card.dataset.regionFocus;
+        cards.forEach(item => item.classList.toggle('active', item === card));
+        title.textContent = content[region][0];
+        text.textContent = content[region][1];
+      };
+      cards.forEach(card => {
+        card.addEventListener('click', () => activate(card));
+        card.addEventListener('keydown', key => {
+          if (key.key === 'Enter' || key.key === ' ') { key.preventDefault(); activate(card); }
+        });
+      });
+    }
+
+    function bindRegionalMap() {
+      const module = document.getElementById('regionalMapModule');
+      if (!module) return;
+      const lens = document.getElementById('regionalMapLens');
+      const status = document.getElementById('regionMapStatus');
+      const readout = document.getElementById('regionMapReadout');
+      const buttons = [...module.querySelectorAll('.map-controls button')];
+      const labels = {
+        reset: { status: 'Map / reset', text: 'Click a region: the map zooms in, then lifts that region out as a visual argument.' },
+        north: { status: 'North / industry', text: 'North: ports, canals, factories, wage labor, and growing cities.' },
+        south: { status: 'South / cotton', text: 'South: warm climate, cotton expansion, plantation agriculture, and enslaved labor.' },
+        west: { status: 'West / land', text: 'West: land access, resource extraction, settlement, Indigenous displacement, and transport.' }
+      };
+      const activate = region => {
+        lens.dataset.focus = region;
+        buttons.forEach(button => button.classList.toggle('active', button.dataset.mapRegion === region));
+        status.textContent = labels[region].status;
+        readout.textContent = labels[region].text;
+      };
+      module.querySelectorAll('[data-map-region]').forEach(control => {
+        control.addEventListener('click', () => activate(control.dataset.mapRegion));
+      });
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        lens.addEventListener('pointermove', event => {
+          const box = lens.getBoundingClientRect();
+          const x = (event.clientX - box.left) / box.width - .5;
+          const y = (event.clientY - box.top) / box.height - .5;
+          lens.style.setProperty('--rx', `${(-y * 2.8).toFixed(2)}deg`);
+          lens.style.setProperty('--ry', `${(x * 3.6).toFixed(2)}deg`);
+        });
+        lens.addEventListener('pointerleave', () => {
+          lens.style.setProperty('--rx', '0deg');
+          lens.style.setProperty('--ry', '0deg');
+        });
+      }
+    }
+
+    function bindConflictTimeline() {
+      const focus = document.getElementById('conflictFocus');
+      const events = [...document.querySelectorAll('.conflict .event[data-conflict]')];
+      const labels = {
+        '1820': '1820 · political balance',
+        '1850': '1850 · territories reopened the question',
+        '1854': '1854 · popular sovereignty intensified instability',
+        '1860': '1860 · sectional polarization became a crisis'
+      };
+      const activate = event => {
+        events.forEach(item => item.classList.toggle('active', item === event));
+        if (focus) focus.textContent = labels[event.dataset.conflict];
+      };
+      events.forEach(event => {
+        event.addEventListener('click', () => activate(event));
+        event.addEventListener('keydown', key => {
+          if (key.key === 'Enter' || key.key === ' ') { key.preventDefault(); activate(event); }
+        });
+      });
+    }
+
+    bindLogicChain();
+    bindIndigenousRegions();
+    bindRegionalMap();
+    bindConflictTimeline();
+
+    const deck = new SlidePresentation();
+  </script>
+</body>
+</html>
